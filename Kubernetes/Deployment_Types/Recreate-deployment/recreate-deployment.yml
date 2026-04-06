@@ -18,12 +18,12 @@ spec:
         app: online-shop
     spec:
       containers:
-      - image: amitabhdevops/online_shop
-        name: online-shop
-        resources:
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-          requests:
-            cpu: "200m"
-            memory: "256Mi"
+        - image: amitabhdevops/online_shop
+          name: online-shop
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "200m"
+              memory: "256Mi"

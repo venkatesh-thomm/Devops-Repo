@@ -6,20 +6,20 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: "tws.com"
-    http:
-      paths:
-      - path: /apache
-        pathType: Prefix
-        backend:
-          service:
-            name: apache-service
-            port:
-              number: 80
-      - path: /nginx
-        pathType: Prefix
-        backend:
-          service:
-            name: nginx-service
-            port:
-              number: 80
+    - host: "tws.com"
+      http:
+        paths:
+          - path: /apache
+            pathType: Prefix
+            backend:
+              service:
+                name: apache-service
+                port:
+                  number: 80
+          - path: /nginx
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-service
+                port:
+                  number: 80
