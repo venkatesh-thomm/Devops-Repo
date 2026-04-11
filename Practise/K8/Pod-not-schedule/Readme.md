@@ -73,3 +73,12 @@ spec:
     value: ssd
     effect: NoSchedule
 ```
+
+| Scenario                         | Command                       |
+| -------------------------------- | ----------------------------- |
+| Running container logs           | `kubectl logs pod`            |
+| Crashed/restarted container logs | `kubectl logs pod --previous` |
+
+## 👉 --previous only works if:
+
+ - Container crashed or restarted
