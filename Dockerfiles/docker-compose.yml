@@ -1,47 +1,77 @@
 version: "3.9"
 
-# Use '&' to define the anchor (template)
-x-resource-limits: &default-resources
+x-deploy-defaults: &deploy-defaults
   resources:
     limits:
-      cpus: "0.50" # Max limit (e.g., 0.5 cores)
-      memory: "512M" # Max memory
+      cpus: "0.50"
+      memory: "512M"
     reservations:
-      cpus: "0.25" # Guaranteed minimum
-      memory: "128M" # Guaranteed minimum
+      cpus: "0.25"
+      memory: "256M"
+  restart_policy:
+    condition: on-failure  
 
 services:
   app:
-    build: ./
+    build: .
     image: my-custom:1.20
     ports:
       - "8081:8080"
     environment:
-      app: production
+      APP_ENV: production
+      DB_HOST: db
+      DB_PASSWORD_FILE: /run/secrets/db_password
     depends_on:
-      - db
-    deploy: *default-resources # Use '*' to reference the anchor
+      db:
+        condition: service_healthy
+    secrets:
+      - db_password
+    networks:
+      - backend
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 30s
+      retries: 3
+    deploy: *deploy-defaults
 
   web:
     image: nginx:latest
     ports:
       - "8080:80"
-    environment:
-      app: production
     volumes:
       - html:/usr/share/nginx/html
-    deploy: *default-resources
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - app
+    deploy: *deploy-defaults
 
   db:
     image: mysql:8.0
-    ports:
-      - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: password # Required for MySQL
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_password
+      MYSQL_DATABASE: mydb
+    secrets:
+      - db_password
     volumes:
       - db_data:/var/lib/mysql
-    deploy: *default-resources
+    networks:
+      - backend
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 30s
+      retries: 5
+    deploy: *deploy-defaults
+
+networks:
+  frontend:
+  backend:
 
 volumes:
   html:
   db_data:
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
