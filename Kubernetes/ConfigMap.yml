@@ -6,3 +6,4 @@ metadata:
 data:
   APP_MODE: "production"
   API_URL: "http://backend.demo.svc.cluster.local"
+  LOG_LEVEL: "info"
