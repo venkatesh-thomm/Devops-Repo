@@ -1,31 +1,16 @@
-# Stage 1: Build Stage
-FROM maven:3.9.2-openjdk-17 AS builder
+# Use a single image that contains both Maven and JDK
+FROM maven:3.9.2-openjdk-17
 
 WORKDIR /app
 
-# Copy Maven configuration
-COPY pom.xml .
+# Copy the entire project into the container
+COPY . .
 
-# Download dependencies separately for caching
-RUN mvn dependency:go-offline
-
-# Copy source code
-COPY src ./src
-
-# Build application
+# Build the application and package the JAR
 RUN mvn package -DskipTests
 
-
-# Stage 2: Runtime Stage
-FROM openjdk:17-jdk-slim
-
-WORKDIR /app
-
-# Copy generated jar from builder stage
-COPY --from=builder /app/target/myapp.jar myapp.jar
-
-# Expose application port
+# Expose the application port
 EXPOSE 8080
 
-# Run application
-CMD ["java", "-jar", "myapp.jar"]
+# Run the application directly from the target folder
+CMD ["java", "-jar", "target/myapp.jar"]
