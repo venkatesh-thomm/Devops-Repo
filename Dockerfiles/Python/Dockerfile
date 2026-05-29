@@ -1,20 +1,34 @@
 FROM python:3.10-slim
 
-# Set working directory
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Copy dependencies first for caching
+RUN apt-get update && apt-get install -y build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy app code
 COPY . .
+
+# Create non-root user
+RUN useradd -m appuser
+
+# Change ownership
+RUN chown -R appuser:appuser /app
+
+# Switch user
+USER appuser
 
 EXPOSE 8000
 
-# Default command
 CMD ["python", "app.py"]
+
+
 
 Interview Talking Points:
  Docker builds images layer by layer, one instruction at a time.
